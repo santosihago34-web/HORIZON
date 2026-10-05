@@ -45,7 +45,7 @@ class Brain:
         for product, names in self.policy["products"].items():
             for match in re.finditer(r"\b(?:" + "|".join(map(re.escape, names)) + r")\b", normalized):
                 prefix = normalized[max(0, match.start() - 40):match.start()]
-                if intention and re.search(r"(?:nao (?:quero|era|gostei d[ao])|deixa|anuncio (?:de|da|do))\s*$", prefix):
+                if intention and re.search(r"(?:nao (?:quero|era)(?: mais)?(?: [ao]s?)?|nao gostei d[ao]|deixa(?: [ao]s?)?|anuncio (?:de|da|do))\s*$", prefix):
                     continue
                 result.append((match.start(), product))
         return list(dict.fromkeys(product for _, product in sorted(result)))
@@ -63,6 +63,11 @@ class Brain:
                 continue
             n = normal(text)
             choices = self.products(text, intention=True)
+            mentioned = self.products(text)
+            if not choices and product in mentioned and re.search(r"\b(?:nao quero|deixa)\b", n):
+                product, evidence, size, model = None, None, None, None
+                known.pop("tamanho", None)
+                known.pop("modelo", None)
             if len(choices) == 1:
                 chosen = choices[0]
                 if chosen != product:
@@ -81,7 +86,7 @@ class Brain:
                 seller_products = self.products(previous_seller)
                 explicit_question = re.search(r"(?:quer|interess|procura)", normal(previous_seller))
                 clear = len(seller_products) == 1 and previous_seller.count("?") == 1 and explicit_question
-                clear = clear and not re.search(r"\b(?:ou| e )\b", normal(previous_seller))
+                clear = clear and not re.search(r"\b(?:ou|e)\b", normal(previous_seller))
                 if clear:
                     if product != seller_products[0]:
                         size, model = None, None
@@ -123,7 +128,7 @@ class Brain:
     def fact(name, value, source):
         return {"dado": name, "valor": value, "fonte": "cliente: " + source, "atualidade": "contexto da conversa; não verifica catálogo"}
 
-    def catalogue(self, data, product, size, model, destination, now):
+    def catalogue(self, data, product, size, model, destination, now, unit=None):
         values, conflict = {}, False
         if not product:
             return values, conflict
@@ -138,6 +143,8 @@ class Brain:
             if record.get("size") and record["size"].upper() != size:
                 continue
             if record.get("destination") and normal(record["destination"]) != destination:
+                continue
+            if record["field"] == "preco" and unit and normal(record["unit"]) != unit:
                 continue
             field = record["field"]
             if field in values and (values[field]["value"], values[field].get("unit")) != (record["value"], record.get("unit")):
@@ -176,7 +183,8 @@ class Brain:
         latest = customer_messages[-1]
         text, n = contents(latest), normal(contents(latest))
         product, evidence, size, model, destination, known, ambiguous = self.facts(data)
-        values, conflict = self.catalogue(data, product, size, model, destination, now)
+        unit = "kit" if re.search(r"\bkit\b", n) else None
+        values, conflict = self.catalogue(data, product, size, model, destination, now, unit)
         ad = self.products(data.get("ad_product", ""))
         product_state = "CONFIRMADO" if product else ("PROVÁVEL" if len(ad) == 1 else "NÃO IDENTIFICADO")
         recurring = data.get("customer", {}).get("recorrente")
@@ -213,7 +221,9 @@ class Brain:
             result["dado_que_falta"] = "transcrição ou esclarecimento por texto"
             return finish(responses["audio"], "Solicitar transcrição/texto e revisão humana; não inferir o áudio.", "OBRIGATÓRIO", "Situação não compreendida: áudio sem transcrição.")
         for trigger in ("complaint", "payment_problem", "exception"):
-            if self.has(text, trigger):
+            # Sem contrato de resolução confiável nesta V1, mantenha a revisão
+            # obrigatória de uma exceção anterior mesmo após nova pergunta.
+            if any(self.has(contents(message), trigger) for message in customer_messages):
                 result["confianca"] = "ALTA"
                 return finish(responses[trigger], "Recomendar atendimento humano; não vender nem prometer solução.", "OBRIGATÓRIO", {"complaint": "Reclamação/irritação ou erro de pedido.", "payment_problem": "Problema de pagamento/cobrança.", "exception": "Exceção fora da regra comercial."}[trigger])
         if conflict:
@@ -221,6 +231,12 @@ class Brain:
         if self.has(text, "stop"):
             result["follow_up_elegivel"]["motivo"] = "Cliente pediu para não receber contato. Nenhuma retomada é elegível."
             return finish(responses["stop"], "Respeitar o pedido de não contatar; não executar alterações.")
+        location_question = bool(re.search(r"\b(?:onde fica|localizacao|endereco)\b", n))
+        understandable = location_question or product or ambiguous or re.search(r"\b(?:valor|preco|quanto|custa|frete|entrega|envia|prazo|tem|algodao|tecido|composicao|elastano|tamanho|modelo|saber|informacao|informacoes|oi|ola|bom dia|boa tarde|boa noite|uso|visto|quero|gostaria|queria|sim|voltei|obrigado|obrigada)\b", n)
+        if not understandable and not any(self.has(text, trigger) for trigger in ("discount", "wait", "think")):
+            result["confianca"] = "BAIXA"
+            result["dado_que_falta"] = "esclarecimento da solicitação"
+            return finish("Não consegui entender esse pedido. Pode explicar por texto? Um atendente pode ajudar.", "Solicitar esclarecimento e revisão humana; não presumir intenção.", "OBRIGATÓRIO", "Situação não compreendida pelo motor local.")
         if ambiguous and re.fullmatch(r"sim[.!\s]*", n):
             result["confianca"] = "BAIXA"
             result["dado_que_falta"] = "referente do sim"
@@ -233,9 +249,31 @@ class Brain:
             if self.has(text, trigger):
                 result["estagio"] = "OBJETANDO"
                 permission = data.get("follow_up_permission") is True or self.has(text, "permission")
+                for message in customer_messages:
+                    if self.has(contents(message), "stop"):
+                        permission = False
+                    elif self.has(contents(message), "permission"):
+                        permission = True
                 eligible = bool(permission and product and values.get("estoque", {}).get("value") is True)
                 result["follow_up_elegivel"] = {"valor": eligible, "motivo": "Somente elegibilidade futura: " + ("permissão, produto e disponibilidade verificada; humano decide. " if eligible else "faltam permissão explícita ou motivo comercial verificado. ") + "Resposta atual interrompe sequência anterior; nada agendado/enviado."}
                 return finish(responses[trigger], "Respeitar o adiamento declarado e guardar contexto somente na análise.")
+
+        if location_question:
+            store, location_conflict = self.catalogue(data, "loja", None, None, None, now)
+            if location_conflict:
+                return finish(responses["conflict"], "Conferir localização contraditória com humano.", "OBRIGATÓRIO")
+            if "localizacao" in store:
+                response = f'A loja fica em {store["localizacao"]["value"]}.'
+            else:
+                response = "Localização: INFORMAÇÃO NÃO DISPONÍVEL; precisa de conferência."
+                result["dado_que_falta"] = "localização verificada"
+            if not product and len(ad) == 1:
+                response += f' Você queria ver a {ad[0]} do anúncio ou procura outra peça?'
+            return finish(response, "Responder primeiro à localização com fonte verificada; confirmar interesse sem presumir pelo anúncio.")
+        if product == "chapéu" and not size and re.search(r"nao sei.*(?:tamanho|medida)|sem (?:tamanho|medida)", n):
+            result["dado_que_falta"] = "medida da cabeça e tabela verificada do modelo"
+            result["estagio"] = "QUALIFICANDO"
+            return finish(responses["hat_measure"], "Orientar medição simples e conferir tabela com atendente; não garantir caimento.")
 
         requested = []
         if re.search(r"\b(?:valor|preco|quanto|custa)\b", n):
@@ -251,6 +289,8 @@ class Brain:
             requested.append("composicao")
             if result["estagio"] != "COMPARANDO":
                 result["estagio"] = "QUALIFICANDO"
+        if not requested and any(item["dado"] == "uso" for item in known) and "beneficio" in values:
+            requested.append("beneficio")
         if re.search(r"\b(?:tem|estoque|disponivel|disponibilidade)\b", n):
             requested.insert(0, "estoque")
         if size and result["estagio"] == "INTERESSE CONFIRMADO":

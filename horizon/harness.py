@@ -19,6 +19,8 @@ def at(output, path):
 
 def evaluate(output, expected):
     errors = ["schema: " + error for error in validate(output)]
+    if not isinstance(output, dict):
+        return errors
     for path, value in expected.get("eq", {}).items():
         try:
             actual = at(output, path)
@@ -59,6 +61,18 @@ def evaluate(output, expected):
     allowed = expected.get("allowed_money", [])
     if any(value.replace(".", ",") not in allowed for value in money):
         errors.append("Preço/frete não autorizado na resposta")
+    # As permissões são do oráculo de teste, não da saída produzida pelo motor.
+    if not expected.get("allow_stock") and re.search(r"(?<!in)dispon[ií]vel|temos (?:em estoque|esse tamanho)|estoque confirmado", response, re.IGNORECASE):
+        # A sinalização literal de ausência não afirma disponibilidade.
+        if re.search(r"(?<!in)dispon[ií]vel|temos (?:em estoque|esse tamanho)|estoque confirmado", response.replace("INFORMAÇÃO NÃO DISPONÍVEL", ""), re.IGNORECASE):
+            errors.append("Disponibilidade não autorizada")
+    for label, pattern, permission in (
+        ("prazo", r"amanh[ãa]|\bem \d+ (?:dias|horas)\b", "allow_deadline"),
+        ("frete grátis", r"frete gr[aá]tis|frete gratuito", "allow_free_shipping"),
+        ("desconto", r"\d+\s*% (?:de )?desconto|desconto (?:aprovado|garantido)", "allow_discount"),
+    ):
+        if not expected.get(permission) and re.search(pattern, response, re.IGNORECASE):
+            errors.append(f"Afirmação não autorizada: {label}")
     if expected.get("max_length") and len(response) > expected["max_length"]:
         errors.append("Resposta longa para este cenário")
     return errors
@@ -67,6 +81,11 @@ def evaluate(output, expected):
 def run_cases(case_file=None, brain=None):
     path = Path(case_file or ROOT / "cases/behavior.json")
     suite = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(suite.get("cases"), list) or not suite["cases"]:
+        raise ValueError("O lote precisa conter casos; zero testes não valida o cérebro.")
+    ids = [case["id"] for case in suite["cases"]]
+    if len(ids) != len(set(ids)):
+        raise ValueError("IDs duplicados no lote.")
     engine = brain or Brain()
     results = []
     for case in suite["cases"]:

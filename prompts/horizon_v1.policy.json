@@ -8,7 +8,7 @@
     "chapéu": ["chapeu", "chapeus"]
   },
   "triggers": {
-    "complaint": ["pedido veio errado", "pedido errado", "ninguem resolveu", "reclamacao", "irritado", "absurdo", "nao resolveu", "erraram meu pedido"],
+    "complaint": ["pedido veio errado", "pedido errado", "ninguem resolveu", "reclamacao", "irritado", "absurdo", "nao resolveu", "erraram meu pedido", "pedido nao chegou", "insatisfeito", "insatisfeita"],
     "payment_problem": ["pagamento deu erro", "cobrado", "cobranca duplicada", "pix nao caiu", "pagamento nao caiu", "estorno"],
     "exception": ["fora da regra", "excecao de estoque", "vender mesmo sem estoque"],
     "discount": ["mais barato", "desconto", "melhor preco"],
@@ -21,6 +21,7 @@
   "responses": {
     "unknown_product": "De qual peça você quer saber?",
     "ambiguous_yes": "Só pra confirmar: a qual pergunta você respondeu sim?",
+    "hat_measure": "Dá para medir com fita ou cordão ao redor da cabeça. Depois um atendente confere a medida com a tabela do modelo; não dá para garantir o tamanho sem essa conferência.",
     "audio": "Não tenho a transcrição desse áudio. Pode me contar por texto? Um atendente pode ajudar a conferir.",
     "complaint": "Sinto pelo problema com seu pedido. A orientação é pedir que um atendente confira o ocorrido com você.",
     "payment_problem": "Entendi o problema com o pagamento. Um atendente precisa conferir a cobrança antes de orientar o próximo passo.",

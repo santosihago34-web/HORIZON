@@ -1,6 +1,56 @@
-# HORIZON — ambiente de teste da IA V1
+# HORIZON — protótipo local do cérebro de atendimento V1
 
 Este repositório contém um ambiente **isolado** para conferir análises e sugestões da Horizon IA V1. Não se conecta à Nextags, WhatsApp ou OpenAI, não envia mensagens e não altera contatos. O repositório é público: não inclua dados reais de clientes nem chaves de API.
+
+## Executar o protótipo
+
+Python 3.12, somente biblioteca padrão; nenhuma instalação ou credencial.
+Use o checkout existente; nenhuma worktree ou serviço precisa ser criado.
+
+```bash
+cd /workspace/HORIZON
+python -m horizon.cli examples/conversa_camisa.json --view > /tmp/horizon_saida.json
+python -m horizon.validator /tmp/horizon_saida.json
+python -m horizon.harness --report /tmp/horizon_comportamento.json --examples /tmp/horizon_exemplos.md
+python -m unittest discover -s tests -v
+```
+
+A CLI imprime JSON em stdout e o resumo em stderr. Não grava a conversa nem
+executa a resposta sugerida. O harness retorna código 1 se houver falha e 2 se
+o lote/configuração for inválido; registra PASSOU/FALHOU por caso. Relatórios
+incluem entradas: use arquivos externos/ignorados para dados privados.
+
+O backend **local-deterministic** usa regras conservadoras e frases da policy.
+Não há inferência de LLM. O prompt textual é carregado e identificado por SHA256,
+mas não é executado por um modelo. Alterar só o Markdown não muda esse backend;
+`--policy caminho.json` altera regras, frases e vocabulário sem reescrever a
+aplicação. `--prompt caminho.md` permite substituir o texto de referência.
+
+- Especificação e casos originais: `docs/`.
+- Prompt textual: `prompts/horizon_v1.md`; regras: `prompts/horizon_v1.policy.json`.
+- Contratos: `schemas/input.schema.json` e `schemas/output.schema.json`.
+- Cenários e expectativas: `cases/behavior.json`.
+- Resultados, seis exemplos completos e limitações: `reports/`.
+
+Para cotar, forneça fatos em `commercial`, com `source` e `verified_at` (ISO com
+fuso). O motor aceita somente fatos de até 24h, nunca de data futura, e compara
+produto/modelo/tamanho/destino. Preço requer unidade; frete/prazo/entrega requerem
+destino e estoque requer tamanho. Valores monetários são BRL. A aplicação não
+verifica a fonte externamente: o operador é responsável pela autenticidade.
+Histórico de vendedor e anúncio não verificam dados comerciais.
+
+`--now` permite testes com instante fixo; omita em uso manual para verificar
+a validade com o relógio atual. `examples/conversa_verificada.json` usa dados
+fictícios e requer `--now 2026-10-05T15:00:00+00:00` para reproduzir o teste.
+
+Score é uma avaliação heurística **parcial** do atendimento anterior; itens não
+observáveis não recebem nota. Follow-up é somente elegibilidade futura, com
+permissão e motivo verificado, sem horários, agendamento ou envio. Exceções
+anteriores mantêm humano obrigatório: não existe resolução de tickets nesta V1.
+
+Passar o lote determinístico não comprova que um futuro LLM passa os mesmos
+testes, nem desempenho em conversas arbitrárias. Nenhuma publicação faz parte
+deste fluxo.
 
 ## Abrir o ambiente
 

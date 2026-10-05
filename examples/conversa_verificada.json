@@ -1,0 +1,15 @@
+{
+  "messages": [
+    {"role": "cliente", "text": "Quero calça tamanho 44. Quanto fica essa?"}
+  ],
+  "commercial": [
+    {
+      "product": "calça",
+      "field": "preco",
+      "value": 159.9,
+      "unit": "peça",
+      "source": "catálogo fictício conferido",
+      "verified_at": "2026-10-05T14:00:00+00:00"
+    }
+  ]
+}

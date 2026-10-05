@@ -1,0 +1,247 @@
+{
+  "type": "object",
+  "properties": {
+    "contexto_entendido": {
+      "type": "string",
+      "minLength": 1
+    },
+    "produto": {
+      "type": "object",
+      "properties": {
+        "estado": {
+          "type": "string",
+          "enum": [
+            "CONFIRMADO",
+            "NÃO IDENTIFICADO",
+            "PROVÁVEL"
+          ]
+        },
+        "nome": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "evidencia": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "estado",
+        "nome",
+        "evidencia"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "estado": {
+                "const": "CONFIRMADO"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "nome": {
+                "type": "string",
+                "minLength": 1
+              },
+              "evidencia": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "estado": {
+                "const": "NÃO IDENTIFICADO"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "nome": {
+                "type": "null"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "estagio": {
+      "type": "string",
+      "enum": [
+        "CLIENTE RECORRENTE",
+        "COMPARANDO",
+        "COMPRA PROVÁVEL",
+        "ESFRIOU",
+        "EXPLORANDO",
+        "INTERESSE CONFIRMADO",
+        "OBJETANDO",
+        "QUALIFICANDO"
+      ]
+    },
+    "cliente_recorrente": {
+      "type": "string",
+      "enum": [
+        "DESCONHECIDO",
+        "NÃO",
+        "SIM"
+      ]
+    },
+    "dados_ja_conhecidos": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "dado": {
+            "type": "string"
+          },
+          "valor": {
+            "type": "string"
+          },
+          "fonte": {
+            "type": "string"
+          },
+          "atualidade": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "dado",
+          "valor",
+          "fonte",
+          "atualidade"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "dado_que_falta": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "sinal_comercial": {
+      "type": "string",
+      "minLength": 1
+    },
+    "proxima_acao_recomendada": {
+      "type": "string",
+      "minLength": 1
+    },
+    "resposta_sugerida": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "confianca": {
+      "type": "string",
+      "enum": [
+        "ALTA",
+        "BAIXA",
+        "MÉDIA"
+      ]
+    },
+    "humano": {
+      "type": "string",
+      "enum": [
+        "NÃO",
+        "OBRIGATÓRIO",
+        "SUGERIDO"
+      ]
+    },
+    "motivo": {
+      "type": "string",
+      "minLength": 1
+    },
+    "follow_up_elegivel": {
+      "type": "object",
+      "properties": {
+        "valor": {
+          "type": "boolean"
+        },
+        "motivo": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "valor",
+        "motivo"
+      ],
+      "additionalProperties": false
+    },
+    "score_atendimento_anterior": {
+      "type": "object",
+      "properties": {
+        "nota": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 10
+        },
+        "itens_avaliaveis": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10
+        },
+        "observacao": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "nota",
+        "itens_avaliaveis",
+        "observacao"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "itens_avaliaveis": {
+                "maximum": 2
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "nota": {
+                "type": "null"
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "required": [
+    "contexto_entendido",
+    "produto",
+    "estagio",
+    "cliente_recorrente",
+    "dados_ja_conhecidos",
+    "dado_que_falta",
+    "sinal_comercial",
+    "proxima_acao_recomendada",
+    "resposta_sugerida",
+    "confianca",
+    "humano",
+    "motivo",
+    "follow_up_elegivel",
+    "score_atendimento_anterior"
+  ],
+  "additionalProperties": false,
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Horizon IA V1 — saída de análise e sugestão"
+}

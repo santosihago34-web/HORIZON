@@ -1,6 +1,7 @@
 """Valida a estrutura de uma sugestão. Não chama APIs nem envia mensagens."""
 
 import json
+import math
 import sys
 from pathlib import Path
 
@@ -57,6 +58,8 @@ def validate(data):
                 errors.append(f"produto.{key} deve ser texto ou null.")
         if product["estado"] == "CONFIRMADO" and not product["evidencia"]:
             errors.append("Produto confirmado requer evidência explícita.")
+        if product["estado"] == "CONFIRMADO" and (not isinstance(product["nome"], str) or not product["nome"].strip()):
+            errors.append("Produto confirmado requer nome não vazio.")
         if product["estado"] == "NÃO IDENTIFICADO" and product["nome"] is not None:
             errors.append("Produto não identificado não deve ter nome.")
 
@@ -78,7 +81,7 @@ def validate(data):
         note, count = score["nota"], score["itens_avaliaveis"]
         if type(count) is not int or not 0 <= count <= 10:
             errors.append("itens_avaliaveis deve ser inteiro entre 0 e 10.")
-        if note is not None and (type(note) not in (int, float) or not 0 <= note <= 10):
+        if note is not None and (type(note) not in (int, float) or not math.isfinite(note) or not 0 <= note <= 10):
             errors.append("nota deve ser número entre 0 e 10 ou null.")
         if type(count) is int and count < 3 and note is not None:
             errors.append("Com menos de três itens avaliáveis, nota deve ser null.")
