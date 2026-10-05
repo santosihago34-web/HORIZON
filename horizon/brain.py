@@ -8,6 +8,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from horizon.contracts import check_input, instant
+from horizon.conversation_security import evidence_text
 from horizon.validator import validate
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -57,9 +58,14 @@ class Brain:
         ambiguous = False
         last_customer_index = max(i for i, m in enumerate(data["messages"]) if m["role"] == "cliente")
         for i, message in enumerate(data["messages"][:last_customer_index + 1]):
-            text = contents(message)
+            original_text = contents(message)
+            text, attempts = evidence_text(original_text)
             if message["role"] == "vendedor":
                 previous_seller = text
+                continue
+            if attempts:
+                known["tentativa_manipulacao"] = self.fact("tentativa_manipulacao", ", ".join(attempts), original_text)
+            if not text:
                 continue
             n = normal(text)
             choices = self.products(text, intention=True)

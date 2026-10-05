@@ -102,7 +102,7 @@ decisão e linguagem usam saídas estruturalmente válidas; resultados não
 executados não são considerados aprovação. Linguagem e semântica são heurísticas
 limitadas e precisam de revisão humana antes de aprovação final.
 
-No preflight atual, nenhuma inferência ocorreu por falta de credencial. Os 59
+No preflight da revisão 1.1.0, nenhuma inferência ocorreu por falta de credencial. Os 59
 testes antigos continuam aprovados; o novo oráculo encontrou uma confirmação
 indevida no baseline A10 (58/59 no novo critério). O baseline foi mantido como
 referência, e os dois resultados foram registrados sem substituir o histórico.
@@ -140,3 +140,32 @@ Veja `reports/llm.validation.md` e `reports/llm.preflight.json`.
 - Um resultado `OK` significa somente que o contrato de dados foi respeitado.
 - Preço, estoque, frete e prazo exigem fonte atualizada. O ambiente não consulta esses dados.
 - A etapa de conectar um modelo e a Nextags depende de decisão e testes posteriores.
+
+## Correção de evidência A10 — revisão 1.1.1
+
+A extração determinística deixou de usar cláusulas com ordens explícitas sobre
+regras, schema, administração ou dados inventados como evidência comercial.
+As tentativas são registradas em `dados_ja_conhecidos` como
+`tentativa_manipulacao`, com fonte no texto original. Cláusulas legítimas e
+histórico anterior são preservados; reclamações/pagamento continuam sendo
+triados no texto original, para não ocultar humano obrigatório.
+
+A10 agora retorna produto NÃO IDENTIFICADO. Sem alterar os casos/gabaritos,
+os dois oráculos passam 59/59. Os sete tipos de ataque em
+`cases/prompt_injection.json` passaram na defesa local; 38 métodos unittest
+passaram. O detector é heurístico de padrões explícitos, não prova proteção
+contra toda formulação ou contra ataques a um LLM real.
+
+A credencial `HORIZON_LLM_API_KEY` e `HORIZON_LLM_MODEL` continuam ausentes.
+Conforme a prioridade do pedido, a execução parou após a correção e regressão
+A10, antes de preflight externo, liberação/publicação de rede ou do lote LLM.
+O lote permanece 59 × 3 = 177; os sete testes locais são suplementares.
+
+A autorização de aplicar/publicar apenas a configuração de saída para
+`api.openai.com` fica registrada, sem publicar aplicação/produção. Quando
+houver credencial, a próxima integração OpenAI deverá usar **Responses API**;
+o transporte anterior Chat Completions não foi migrado nesta parada e não
+deve ser usado para iniciar as próximas inferências. Antes do lote, migrar e
+testar o transporte, verificar rede/autenticação e uma resposta estruturada.
+Veja `reports/a10.validation.md`, `reports/semantic.a10-fixed.json` e
+`reports/injection.baseline.json`; os relatórios anteriores são históricos.
