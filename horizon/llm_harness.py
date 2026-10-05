@@ -10,7 +10,7 @@ from pathlib import Path
 from horizon.brain import Brain, ROOT
 from horizon.contracts import check_input
 from horizon.llm_brain import LLMBrain
-from horizon.model_provider import InvalidModelOutput, MissingCredential, ModelConfig, OpenAIChatProvider, ProviderError
+from horizon.model_provider import InvalidModelOutput, MissingCredential, ModelConfig, OpenAIResponsesProvider, ProviderError
 from horizon.semantic_eval import CATEGORIES, decision_signature, evaluate_semantic
 
 
@@ -95,9 +95,9 @@ def run_comparison(provider=None, *, repeats=3, case_file=None, oracle_file=None
             llm_items.append(item)
     inconsistent = sorted(key for key, values in observed_schema_signatures.items() if len(values) > 1)
     complete = engine is not None and all(item["status"] in {"PASSOU", "FALHOU"} for item in llm_items)
-    report = {"revision": "horizon-llm-1.1.0", "created_at": datetime.now(timezone.utc).isoformat(),
+    report = {"revision": "horizon-llm-1.2.0", "created_at": datetime.now(timezone.utc).isoformat(),
               "evaluation_instant": suite["now"], "provider": provider.public_config() if provider is not None else None,
-              "requested_default_provider": "openai-chat-completions", "model_used": provider.public_config().get("model") if provider is not None else None,
+              "requested_default_provider": "openai-responses", "model_used": provider.public_config().get("model") if provider is not None else None,
               "suite_sha256": suite_hash, "oracle_sha256": oracle_hash,
               "base_prompt_sha256": baseline.prompt_hash, "policy_sha256": baseline.policy_hash,
               "overlay_sha256": engine.overlay_hash if engine else hashlib.sha256((ROOT / "prompts/horizon_llm_context.md").read_bytes()).hexdigest(),
@@ -130,7 +130,7 @@ def main():
             if args.preflight:
                 blocker = "preflight_no_network"
             else:
-                provider = OpenAIChatProvider(config)
+                provider = OpenAIResponsesProvider(config)
         except MissingCredential:
             blocker = "missing_credential:HORIZON_LLM_API_KEY"
         except ValueError:

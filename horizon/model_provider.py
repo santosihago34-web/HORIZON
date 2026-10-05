@@ -175,3 +175,71 @@ class OpenAIChatProvider:
             return Completion(content, {"usage": metadata, "finish_reason": "stop"})
         except (KeyError, IndexError, TypeError, UnicodeError, InvalidModelOutput):
             raise ProviderError("invalid_provider_response") from None
+
+
+class OpenAIResponsesProvider(OpenAIChatProvider):
+    """Transporte Responses API; nenhuma ferramenta comercial ou conversa persistida."""
+
+    name = "openai-responses"
+
+    def complete(self, *, system_prompt, user_payload, schema):
+        request_data = {
+            "model": self.config.model, "temperature": self.config.temperature,
+            "max_output_tokens": self.config.max_tokens, "store": False,
+            "instructions": system_prompt,
+            "input": [{"role": "user", "content": [{"type": "input_text", "text": json.dumps(user_payload, ensure_ascii=False, allow_nan=False)}]}],
+            "text": {"format": {"type": "json_schema", "name": "horizon_v1",
+                                "strict": True, "schema": transport_schema(schema)}},
+        }
+        body = json.dumps(request_data, ensure_ascii=False, allow_nan=False).encode()
+        if self.config.api_key.encode() in body:
+            raise ProviderError("credential_in_payload_blocked")
+        request = urllib.request.Request(self.config.base_url.rstrip("/") + "/responses", data=body,
+                                         headers={"Authorization": "Bearer " + self.config.api_key,
+                                                  "Content-Type": "application/json"}, method="POST")
+        try:
+            with self.opener.open(request, timeout=self.config.timeout) as response:
+                status = getattr(response, "status", 200)
+                payload = response.read(2_000_001)
+                if len(payload) > 2_000_000:
+                    raise ProviderError("response_too_large")
+        except urllib.error.HTTPError as exc:
+            # Extraia só código/param alfanuméricos conhecidos, nunca mensagem,
+            # headers ou corpo completo. Não retente o preflight automaticamente.
+            detail = ""
+            try:
+                error = strict_json(exc.read(100_000).decode()).get("error", {})
+                allowed_codes = {"invalid_json_schema", "invalid_api_key", "insufficient_quota", "rate_limit_exceeded", "model_not_found", "invalid_value", "unsupported_parameter", "invalid_request_error"}
+                code = error.get("code")
+                if code in allowed_codes:
+                    detail = ":" + code
+            except Exception:
+                pass
+            raise ProviderError(f"http_{exc.code}" + detail) from None
+        except (urllib.error.URLError, socket.timeout, TimeoutError, OSError):
+            raise ProviderError("network_or_timeout") from None
+        try:
+            decoded = strict_json(payload.decode("utf-8"))
+            if decoded.get("status") != "completed":
+                raise ProviderError("incomplete_completion")
+            texts = []
+            for item in decoded["output"]:
+                if item.get("type") != "message":
+                    raise ProviderError("unexpected_output_type")
+                for content in item["content"]:
+                    if content.get("type") == "refusal":
+                        raise ProviderError("model_refusal")
+                    if content.get("type") != "output_text" or not isinstance(content.get("text"), str):
+                        raise ProviderError("invalid_completion_content")
+                    texts.append(content["text"])
+            if len(texts) != 1:
+                raise ProviderError("invalid_completion_content")
+            content = texts[0]
+            if self.config.api_key in content:
+                raise ProviderError("credential_echo_blocked")
+            usage = decoded.get("usage", {})
+            metadata = {key: usage[key] for key in ("input_tokens", "output_tokens", "total_tokens")
+                        if type(usage.get(key)) is int and usage[key] >= 0}
+            return Completion(content, {"http_status": status, "status": "completed", "usage": metadata})
+        except (KeyError, IndexError, TypeError, UnicodeError, InvalidModelOutput):
+            raise ProviderError("invalid_provider_response") from None

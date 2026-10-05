@@ -6,7 +6,7 @@ import sys
 
 from horizon.brain import Brain
 from horizon.llm_brain import LLMBrain
-from horizon.model_provider import ModelConfig, OpenAIChatProvider, ProviderError
+from horizon.model_provider import ModelConfig, OpenAIResponsesProvider, ProviderError
 
 
 def main():
@@ -22,7 +22,7 @@ def main():
         with open(args.conversation, encoding="utf-8") as stream:
             data = json.load(stream)
         if args.backend == "llm":
-            brain = LLMBrain(OpenAIChatProvider(ModelConfig.from_env()), args.prompt, args.policy)
+            brain = LLMBrain(OpenAIResponsesProvider(ModelConfig.from_env()), args.prompt, args.policy)
         else:
             brain = Brain(args.prompt, args.policy)
         output = brain.analyze(data, args.now)

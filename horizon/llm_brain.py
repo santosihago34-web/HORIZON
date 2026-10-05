@@ -14,7 +14,7 @@ from horizon.validator import validate
 
 class LLMBrain:
     backend = "llm"
-    revision = "horizon-llm-1.1.0"
+    revision = "horizon-llm-1.2.0"
 
     def __init__(self, provider, prompt_path=None, policy_path=None):
         self.provider = provider

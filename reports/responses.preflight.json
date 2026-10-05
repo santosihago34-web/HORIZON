@@ -1,0 +1,22 @@
+{
+  "revision": "horizon-llm-1.2.0",
+  "created_at": "2026-10-05T21:23:45.490517+00:00",
+  "provider": {
+    "provider": "openai-responses",
+    "model": "gpt-4.1-mini-2025-04-14",
+    "base_url": "https://api.openai.com/v1",
+    "temperature": 0.2,
+    "max_tokens": 1800,
+    "timeout_seconds": 60.0,
+    "credentials_logged": false
+  },
+  "case": "T03",
+  "passed": false,
+  "attempts": 1,
+  "completions": 0,
+  "schema_valid": false,
+  "http_status": 401,
+  "executed_prompt_sha256": "576304dd9eddb24673ac42228d70539f74ed3b70751844d1bbb6166f30672876",
+  "secret_audit_passed": true,
+  "failure": "http_401:invalid_api_key"
+}

@@ -169,3 +169,26 @@ deve ser usado para iniciar as próximas inferências. Antes do lote, migrar e
 testar o transporte, verificar rede/autenticação e uma resposta estruturada.
 Veja `reports/a10.validation.md`, `reports/semantic.a10-fixed.json` e
 `reports/injection.baseline.json`; os relatórios anteriores são históricos.
+
+## Responses API — revisão 1.2.0
+
+CLI/harness agora usam `OpenAIResponsesProvider`, `/v1/responses`, saída
+estruturada em `text.format`, `store=false` e nenhum tool comercial.
+O transporte anterior não é utilizado pelas entradas LLM ativas.
+
+Antes do lote, execute exatamente um preflight:
+
+```bash
+python -m horizon.real_validation --report /tmp/horizon-responses-preflight.json
+```
+
+Somente se retornar 0 e `passed=true`, execute as 177 inferências:
+
+```bash
+python -m horizon.llm_harness --repeats 3 --report /tmp/horizon-responses-run.json
+```
+
+O preflight real desta revisão retornou HTTP 401 (`invalid_api_key`) na única
+requisição. O lote não foi iniciado. Corrigir credencial/binding por canal seguro
+antes de novo teste. Ver `reports/responses.validation.md`; métricas LLM ainda
+não medidas. Os relatórios anteriores são históricos.
