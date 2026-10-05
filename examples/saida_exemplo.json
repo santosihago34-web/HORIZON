@@ -1,0 +1,16 @@
+{
+  "contexto_entendido": "Cliente fictício perguntou o preço, sem identificar a peça.",
+  "produto": {"estado": "NÃO IDENTIFICADO", "nome": null, "evidencia": null},
+  "estagio": "COMPARANDO",
+  "cliente_recorrente": "DESCONHECIDO",
+  "dados_ja_conhecidos": [],
+  "dado_que_falta": "peça ou modelo",
+  "sinal_comercial": "Perguntou o valor.",
+  "proxima_acao_recomendada": "Pedir esclarecimento e revisar a sugestão.",
+  "resposta_sugerida": "De qual peça você quer o valor?",
+  "confianca": "BAIXA",
+  "humano": "NÃO",
+  "motivo": "Não é possível cotar sem identificar a peça.",
+  "follow_up_elegivel": {"valor": false, "motivo": "Há uma pergunta atual."},
+  "score_atendimento_anterior": {"nota": null, "itens_avaliaveis": 0, "observacao": "Sem resposta humana avaliável."}
+}
