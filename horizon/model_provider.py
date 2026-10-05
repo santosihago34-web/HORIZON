@@ -57,6 +57,8 @@ class ModelConfig:
             raise MissingCredential("Configure HORIZON_LLM_API_KEY nas configurações seguras do ambiente.")
         if not isinstance(self.model, str) or not self.model.strip():
             raise ValueError("Configure HORIZON_LLM_MODEL com um modelo que aceite saída estruturada.")
+        if self.model.strip().startswith(("sk-", "Bearer ")):
+            raise ValueError("HORIZON_LLM_MODEL contém uma credencial; informe somente o identificador do modelo.")
         if self.api_key in self.model or self.api_key in self.base_url:
             raise ValueError("Credencial não pode fazer parte do modelo ou endpoint.")
         url = urlsplit(self.base_url)
@@ -74,10 +76,14 @@ class ModelConfig:
         key = os.environ.get("HORIZON_LLM_API_KEY") or os.environ.get("OPENAI_API_KEY")
         if not key:
             raise MissingCredential("Configure HORIZON_LLM_API_KEY nas configurações seguras do ambiente. Nenhuma chamada externa foi feita.")
+        try:
+            temperature = float(os.environ.get("HORIZON_LLM_TEMPERATURE", "0.2"))
+            max_tokens = int(os.environ.get("HORIZON_LLM_MAX_TOKENS", "1800"))
+        except ValueError:
+            raise ValueError("Parâmetros LLM precisam ser numéricos; valores omitidos por segurança.") from None
         return cls(model=os.environ.get("HORIZON_LLM_MODEL", ""), api_key=key,
                    base_url=os.environ.get("HORIZON_LLM_BASE_URL", "https://api.openai.com/v1"),
-                   temperature=float(os.environ.get("HORIZON_LLM_TEMPERATURE", "0.2")),
-                   max_tokens=int(os.environ.get("HORIZON_LLM_MAX_TOKENS", "1800")))
+                   temperature=temperature, max_tokens=max_tokens)
 
     def public(self):
         # Whitelist explícita; nunca use asdict(config), que incluiria api_key.

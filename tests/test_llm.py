@@ -51,6 +51,19 @@ class FakeOpener:
 
 
 class ProviderTests(unittest.TestCase):
+    def test_secret_in_model_is_rejected_without_echo(self):
+        misplaced = "sk-test-not-a-real-key"
+        with self.assertRaises(ValueError) as raised:
+            ModelConfig(misplaced, "proxy-test-placeholder")
+        self.assertNotIn(misplaced, str(raised.exception))
+
+    def test_bad_numeric_environment_never_echoes_value(self):
+        misplaced = "sk-test-not-a-real-key"
+        with patch.dict(os.environ, {"HORIZON_LLM_API_KEY": "proxy-test-placeholder", "HORIZON_LLM_TEMPERATURE": misplaced}, clear=True):
+            with self.assertRaises(ValueError) as raised:
+                ModelConfig.from_env()
+        self.assertNotIn(misplaced, str(raised.exception))
+
     def test_no_credential_stops_before_network(self):
         with patch.dict(os.environ, {}, clear=True), patch("urllib.request.OpenerDirector.open") as network:
             with self.assertRaises(MissingCredential):
