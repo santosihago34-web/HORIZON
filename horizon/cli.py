@@ -5,21 +5,30 @@ import json
 import sys
 
 from horizon.brain import Brain
+from horizon.llm_brain import LLMBrain
+from horizon.model_provider import ModelConfig, OpenAIChatProvider, ProviderError
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Horizon V1: análise local sem envio, APIs ou CRM.")
+    parser = argparse.ArgumentParser(description="Horizon V1: sugestão sem envio/CRM; backend local ou LLM explícito.")
     parser.add_argument("conversation")
+    parser.add_argument("--backend", choices=("baseline", "llm"), default="baseline")
     parser.add_argument("--now", help="Instante ISO com fuso; por padrão usa o relógio atual.")
-    parser.add_argument("--prompt", help="Arquivo do prompt textual (sem inferência LLM neste backend).")
+    parser.add_argument("--prompt", help="Prompt textual: referência no baseline, instrução executada no backend llm.")
     parser.add_argument("--policy", help="Arquivo das regras executáveis do backend local.")
     parser.add_argument("--view", action="store_true", help="Resumo e resposta em stderr; stdout continua sendo JSON.")
     args = parser.parse_args()
     try:
         with open(args.conversation, encoding="utf-8") as stream:
             data = json.load(stream)
-        brain = Brain(args.prompt, args.policy)
+        if args.backend == "llm":
+            brain = LLMBrain(OpenAIChatProvider(ModelConfig.from_env()), args.prompt, args.policy)
+        else:
+            brain = Brain(args.prompt, args.policy)
         output = brain.analyze(data, args.now)
+    except ProviderError as exc:
+        print("Inferência não concluída: " + exc.code, file=sys.stderr)
+        return 2
     except (OSError, ValueError, TypeError, KeyError) as exc:
         print(f"Entrada/configuração inválida: {exc}", file=sys.stderr)
         return 2

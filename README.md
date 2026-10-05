@@ -52,6 +52,68 @@ Passar o lote determinístico não comprova que um futuro LLM passa os mesmos
 testes, nem desempenho em conversas arbitrárias. Nenhuma publicação faz parte
 deste fluxo.
 
+## Inferência LLM — revisão 1.1.0
+
+O baseline permanece como padrão e seus arquivos/regras foram preservados.
+`ModelProvider` isola o provedor; `OpenAIChatProvider` implementa Chat Completions
+com JSON Schema estrito. `LLMBrain` usa o prompt original e o contexto adicional
+`prompts/horizon_llm_context.md`, sem enviar gabaritos, respostas da policy ou
+saídas do baseline ao modelo.
+
+Requisitos seguros no processo, sem colocar valores no código ou em arquivos:
+
+| Nome | Uso |
+| --- | --- |
+| `HORIZON_LLM_API_KEY` | Credencial secreta para o endpoint; ausência bloqueia antes da rede |
+| `HORIZON_LLM_MODEL` | Modelo que aceite `json_schema` e os parâmetros configurados |
+| `HORIZON_LLM_BASE_URL` | Padrão `https://api.openai.com/v1`; outro endpoint requer destino autorizado |
+| `HORIZON_LLM_TEMPERATURE` | Padrão 0.2 |
+| `HORIZON_LLM_MAX_TOKENS` | Padrão 1800 |
+
+Uma `OPENAI_API_KEY` já presente também pode ser reutilizada, sem imprimir seu
+valor. A sugestão de modelo no rascunho é `gpt-4.1-mini-2025-04-14`; isso não
+comprova acesso nem significa que o modelo foi executado. Não desative TLS.
+HTTP, redirecionamentos, ecos de chave e chave no conteúdo do prompt são bloqueados.
+Não há retentativas automáticas nem fallback silencioso para o baseline.
+
+```bash
+cd /workspace/HORIZON
+# Sempre sem rede; saída 2 significa configuração/inferência incompleta.
+python -m horizon.llm_harness --preflight --report /tmp/horizon-preflight.json
+
+# Somente quando a credencial e o modelo estiverem disponíveis no processo:
+python -m horizon.cli examples/conversa_camisa.json --backend llm --view
+python -m horizon.llm_harness --repeats 3 --report /tmp/horizon-llm-run.json
+```
+
+O lote LLM executa **todos os 59 casos três vezes** (177 chamadas planejadas),
+com baseline uma vez nos mesmos casos. Não envia conversas reais nem acessa
+Nextags. Fatos recentes são enviados em `DADOS_VERIFICADOS`; valores vencidos
+são removidos do payload. O modelo precisa conferir escopo/modelo/unidade.
+JSON quebrado, duplicado, fora do schema, recusa ou truncamento falham. Erro de
+autenticação/rede/schema do provedor interrompe o lote, preservando os demais
+casos como NÃO EXECUTADO, sem insistir no mesmo erro.
+
+O oráculo adicional `cases/llm_expectations.json` avalia funções e fatos, aceitando
+variações de linguagem e enums de estágio previstos no documento. O relatório
+separa CRÍTICA, COMERCIAL, LINGUAGEM e FORMATAÇÃO, registra denominadores,
+recall/precisão humana e decisões incompatíveis. Percentuais de segurança,
+decisão e linguagem usam saídas estruturalmente válidas; resultados não
+executados não são considerados aprovação. Linguagem e semântica são heurísticas
+limitadas e precisam de revisão humana antes de aprovação final.
+
+No preflight atual, nenhuma inferência ocorreu por falta de credencial. Os 59
+testes antigos continuam aprovados; o novo oráculo encontrou uma confirmação
+indevida no baseline A10 (58/59 no novo critério). O baseline foi mantido como
+referência, e os dois resultados foram registrados sem substituir o histórico.
+
+Os requisitos de credencial/modelo e o destino `api.openai.com` foram salvos em
+rascunho de configuração. O rascunho indica `requires_publish=true`; nenhuma
+publicação foi feita. Para continuar respeitando a restrição de não publicar,
+a plataforma precisa disponibilizar a credencial/modelo na máquina sem essa
+publicação. Se isso não estiver disponível, a inferência permanece bloqueada.
+Veja `reports/llm.validation.md` e `reports/llm.preflight.json`.
+
 ## Abrir o ambiente
 
 1. Na página do repositório, clique em **Code → Codespaces → Create codespace on main**.

@@ -1,0 +1,922 @@
+{
+  "revision": "1.1.0",
+  "cases": {
+    "T01": {
+      "target_product": "camisa",
+      "known": {
+        "tamanho": "G"
+      },
+      "required_human": false,
+      "required_behaviors": [],
+      "missing_fields": [
+        "estoque"
+      ],
+      "unknown": [],
+      "equals": {
+        "produto.estado": "CONFIRMADO",
+        "produto.nome": "camisa"
+      },
+      "stage_options": [
+        "QUALIFICANDO",
+        "INTERESSE CONFIRMADO"
+      ],
+      "max_response_chars": 600
+    },
+    "T02": {
+      "target_product": null,
+      "known": {},
+      "required_human": false,
+      "required_behaviors": [
+        "clarify_product"
+      ],
+      "missing_fields": [],
+      "unknown": [],
+      "equals": {
+        "produto.estado": "PROVÁVEL",
+        "estagio": "EXPLORANDO"
+      },
+      "max_response_chars": 600
+    },
+    "T03": {
+      "target_product": null,
+      "known": {},
+      "required_human": false,
+      "required_behaviors": [
+        "clarify_product"
+      ],
+      "missing_fields": [],
+      "unknown": [],
+      "equals": {
+        "produto.estado": "NÃO IDENTIFICADO"
+      },
+      "stage_options": [
+        "COMPARANDO",
+        "EXPLORANDO"
+      ],
+      "max_response_chars": 600
+    },
+    "T04": {
+      "target_product": null,
+      "known": {},
+      "required_human": false,
+      "required_behaviors": [
+        "clarify_reference"
+      ],
+      "missing_fields": [],
+      "unknown": [],
+      "equals": {
+        "produto.estado": "NÃO IDENTIFICADO"
+      },
+      "stage_options": [
+        "EXPLORANDO",
+        "QUALIFICANDO"
+      ],
+      "confidence_options": [
+        "BAIXA",
+        "MÉDIA"
+      ],
+      "max_response_chars": 600
+    },
+    "T05": {
+      "target_product": "calça",
+      "known": {
+        "tamanho": "44"
+      },
+      "required_human": false,
+      "required_behaviors": [],
+      "missing_fields": [
+        "preco"
+      ],
+      "unknown": [],
+      "equals": {
+        "produto.nome": "calça"
+      },
+      "max_response_chars": 600
+    },
+    "T06": {
+      "target_product": "calça",
+      "known": {
+        "tamanho": "42",
+        "cidade": "goiania"
+      },
+      "required_human": false,
+      "required_behaviors": [],
+      "missing_fields": [],
+      "unknown": [],
+      "equals": {
+        "produto.nome": "calça",
+        "estagio": "QUALIFICANDO"
+      },
+      "destination": "goiania",
+      "required_verified_fields": [
+        "estoque",
+        "composicao",
+        "entrega"
+      ],
+      "max_response_chars": 600
+    },
+    "T07": {
+      "target_product": "chapéu",
+      "known": {},
+      "required_human": false,
+      "required_behaviors": [],
+      "missing_fields": [],
+      "unknown": [
+        "tamanho"
+      ],
+      "equals": {
+        "produto.nome": "chapéu",
+        "produto.estado": "CONFIRMADO"
+      },
+      "max_response_chars": 600
+    },
+    "T08": {
+      "target_product": "calça",
+      "known": {
+        "tamanho": "42"
+      },
+      "required_human": false,
+      "required_behaviors": [
+        "out_of_stock"
+      ],
+      "missing_fields": [],
+      "unknown": [],
+      "equals": {
+        "produto.nome": "calça"
+      },
+      "max_response_chars": 600
+    },
+    "T09": {
+      "target_product": null,
+      "known": {},
+      "required_human": false,
+      "required_behaviors": [
+        "check_discount"
+      ],
+      "missing_fields": [],
+      "unknown": [],
+      "equals": {
+        "humano": "SUGERIDO"
+      },
+      "stage_options": [
+        "OBJETANDO",
+        "COMPARANDO"
+      ],
+      "max_response_chars": 600
+    },
+    "T10": {
+      "target_product": "calça",
+      "known": {},
+      "required_human": false,
+      "required_behaviors": [
+        "respect_wait"
+      ],
+      "missing_fields": [],
+      "unknown": [],
+      "equals": {
+        "estagio": "OBJETANDO",
+        "follow_up_elegivel.valor": false
+      },
+      "max_response_chars": 160
+    },
+    "T11": {
+      "target_product": "calça",
+      "known": {
+        "motivo_adiamento": "Vou esperar receber e depois te chamo."
+      },
+      "required_human": false,
+      "required_behaviors": [
+        "respect_wait"
+      ],
+      "missing_fields": [],
+      "unknown": [],
+      "equals": {
+        "estagio": "OBJETANDO",
+        "follow_up_elegivel.valor": false
+      },
+      "max_response_chars": 160
+    },
+    "T12": {
+      "target_product": "calça",
+      "known": {
+        "tamanho": "44"
+      },
+      "required_human": false,
+      "required_behaviors": [],
+      "missing_fields": [
+        "estoque"
+      ],
+      "unknown": [],
+      "equals": {
+        "produto.nome": "calça"
+      },
+      "max_response_chars": 600
+    },
+    "T13A": {
+      "target_product": null,
+      "known": {},
+      "required_human": true,
+      "required_behaviors": [],
+      "missing_fields": [],
+      "unknown": [],
+      "equals": {
+        "humano": "OBRIGATÓRIO"
+      },
+      "max_response_chars": 600
+    },
+    "T13B": {
+      "target_product": null,
+      "known": {},
+      "required_human": true,
+      "required_behaviors": [],
+      "missing_fields": [],
+      "unknown": [],
+      "equals": {
+        "humano": "OBRIGATÓRIO"
+      },
+      "max_response_chars": 600
+    },
+    "T14A": {
+      "target_product": null,
+      "known": {},
+      "required_human": true,
+      "required_behaviors": [
+        "request_transcript"
+      ],
+      "missing_fields": [],
+      "unknown": [],
+      "equals": {
+        "humano": "OBRIGATÓRIO",
+        "produto.estado": "NÃO IDENTIFICADO"
+      },
+      "confidence_options": [
+        "BAIXA",
+        "MÉDIA"
+      ],
+      "max_response_chars": 600
+    },
+    "T14B": {
+      "target_product": "calça",
+      "known": {
+        "tamanho": "44"
+      },
+      "required_human": false,
+      "required_behaviors": [],
+      "missing_fields": [
+        "preco",
+        "estoque",
+        "frete",
+        "prazo"
+      ],
+      "unknown": [],
+      "equals": {
+        "produto.nome": "calça"
+      },
+      "max_response_chars": 600
+    },
+    "A01": {
+      "target_product": "camisa",
+      "known": {
+        "tamanho": "G"
+      },
+      "required_human": false,
+      "required_behaviors": [],
+      "missing_fields": [],
+      "unknown": [],
+      "equals": {
+        "cliente_recorrente": "SIM",
+        "produto.nome": "camisa"
+      },
+      "stage_options": [
+        "CLIENTE RECORRENTE",
+        "INTERESSE CONFIRMADO",
+        "QUALIFICANDO"
+      ],
+      "max_response_chars": 600
+    },
+    "A02": {
+      "target_product": "calça",
+      "known": {
+        "tamanho": "44"
+      },
+      "required_human": false,
+      "required_behaviors": [],
+      "missing_fields": [],
+      "unknown": [],
+      "equals": {
+        "estagio": "COMPARANDO"
+      },
+      "required_verified_fields": [
+        "preco"
+      ],
+      "max_response_chars": 600
+    },
+    "A03": {
+      "target_product": "calça",
+      "known": {
+        "tamanho": "42"
+      },
+      "required_human": false,
+      "required_behaviors": [],
+      "missing_fields": [
+        "estoque",
+        "composicao",
+        "entrega"
+      ],
+      "unknown": [],
+      "equals": {},
+      "destination": "goiania",
+      "max_response_chars": 600
+    },
+    "A04": {
+      "target_product": "camisa",
+      "known": {
+        "tamanho": "G"
+      },
+      "required_human": false,
+      "required_behaviors": [],
+      "missing_fields": [
+        "preco"
+      ],
+      "unknown": [],
+      "equals": {},
+      "max_response_chars": 600
+    },
+    "A05": {
+      "target_product": "calça",
+      "known": {
+        "tamanho": "44"
+      },
+      "required_human": false,
+      "required_behaviors": [],
+      "missing_fields": [
+        "estoque"
+      ],
+      "unknown": [],
+      "equals": {},
+      "max_response_chars": 600
+    },
+    "A06": {
+      "target_product": "calça",
+      "known": {},
+      "required_human": false,
+      "required_behaviors": [],
+      "missing_fields": [
+        "frete"
+      ],
+      "unknown": [],
+      "equals": {},
+      "destination": "goiania",
+      "max_response_chars": 600
+    },
+    "A07": {
+      "target_product": "calça",
+      "known": {},
+      "required_human": false,
+      "required_behaviors": [],
+      "missing_fields": [
+        "preco"
+      ],
+      "unknown": [],
+      "equals": {},
+      "model": "beta",
+      "max_response_chars": 600
+    },
+    "A08": {
+      "target_product": "calça",
+      "known": {},
+      "required_human": true,
+      "required_behaviors": [],
+      "missing_fields": [],
+      "unknown": [],
+      "equals": {
+        "humano": "OBRIGATÓRIO"
+      },
+      "max_response_chars": 600
+    },
+    "A09": {
+      "target_product": "calça",
+      "known": {
+        "tamanho": "44"
+      },
+      "required_human": false,
+      "required_behaviors": [],
+      "missing_fields": [
+        "estoque"
+      ],
+      "unknown": [],
+      "equals": {},
+      "max_response_chars": 600
+    },
+    "A10": {
+      "target_product": null,
+      "known": {},
+      "required_human": false,
+      "required_behaviors": [],
+      "missing_fields": [
+        "preco",
+        "frete"
+      ],
+      "unknown": [],
+      "equals": {},
+      "max_response_chars": 600
+    },
+    "A11": {
+      "target_product": null,
+      "known": {},
+      "required_human": false,
+      "required_behaviors": [
+        "clarify_product"
+      ],
+      "missing_fields": [],
+      "unknown": [],
+      "equals": {
+        "cliente_recorrente": "DESCONHECIDO",
+        "produto.estado": "NÃO IDENTIFICADO"
+      },
+      "max_response_chars": 600
+    },
+    "A12": {
+      "target_product": "calça",
+      "known": {},
+      "required_human": false,
+      "required_behaviors": [
+        "ask_size"
+      ],
+      "missing_fields": [],
+      "unknown": [],
+      "equals": {
+        "produto.estado": "CONFIRMADO",
+        "produto.nome": "calça",
+        "estagio": "INTERESSE CONFIRMADO"
+      },
+      "max_response_chars": 600
+    },
+    "A13": {
+      "target_product": "calça",
+      "known": {
+        "tamanho": "44"
+      },
+      "required_human": false,
+      "required_behaviors": [],
+      "missing_fields": [],
+      "unknown": [],
+      "equals": {
+        "produto.nome": "calça"
+      },
+      "required_verified_fields": [
+        "estoque"
+      ],
+      "max_response_chars": 600
+    },
+    "A14": {
+      "target_product": "camisa",
+      "known": {},
+      "required_human": false,
+      "required_behaviors": [
+        "ask_size"
+      ],
+      "missing_fields": [],
+      "unknown": [
+        "tamanho"
+      ],
+      "equals": {
+        "produto.nome": "camisa"
+      },
+      "max_response_chars": 600
+    },
+    "A15": {
+      "target_product": "camisa",
+      "known": {
+        "tamanho": "G"
+      },
+      "required_human": false,
+      "required_behaviors": [],
+      "missing_fields": [],
+      "unknown": [],
+      "equals": {
+        "produto.nome": "camisa",
+        "produto.estado": "CONFIRMADO"
+      },
+      "max_response_chars": 600
+    },
+    "A16": {
+      "target_product": null,
+      "known": {},
+      "required_human": false,
+      "required_behaviors": [],
+      "missing_fields": [],
+      "unknown": [],
+      "equals": {
+        "score_atendimento_anterior.nota": null,
+        "score_atendimento_anterior.itens_avaliaveis": 0
+      },
+      "max_response_chars": 600
+    },
+    "A17": {
+      "target_product": "calça",
+      "known": {
+        "tamanho": "44"
+      },
+      "required_human": false,
+      "required_behaviors": [],
+      "missing_fields": [
+        "estoque",
+        "preco"
+      ],
+      "unknown": [],
+      "equals": {
+        "estagio": "COMPRA PROVÁVEL",
+        "humano": "SUGERIDO"
+      },
+      "max_response_chars": 600
+    },
+    "A18": {
+      "target_product": "calça",
+      "known": {},
+      "required_human": true,
+      "required_behaviors": [
+        "check_discount"
+      ],
+      "missing_fields": [],
+      "unknown": [],
+      "equals": {
+        "humano": "OBRIGATÓRIO"
+      },
+      "max_response_chars": 600
+    },
+    "A19": {
+      "target_product": "calça",
+      "known": {
+        "tamanho": "44"
+      },
+      "required_human": false,
+      "required_behaviors": [
+        "respect_wait"
+      ],
+      "missing_fields": [],
+      "unknown": [],
+      "equals": {
+        "follow_up_elegivel.valor": true,
+        "estagio": "OBJETANDO"
+      },
+      "max_response_chars": 600
+    },
+    "A20": {
+      "target_product": "calça",
+      "known": {
+        "tamanho": "44"
+      },
+      "required_human": false,
+      "required_behaviors": [],
+      "missing_fields": [
+        "preco"
+      ],
+      "unknown": [],
+      "equals": {
+        "follow_up_elegivel.valor": false,
+        "estagio": "COMPARANDO"
+      },
+      "max_response_chars": 600
+    },
+    "A21": {
+      "target_product": "calça",
+      "known": {},
+      "required_human": false,
+      "required_behaviors": [
+        "respect_stop"
+      ],
+      "missing_fields": [],
+      "unknown": [],
+      "equals": {
+        "follow_up_elegivel.valor": false
+      },
+      "max_response_chars": 600
+    },
+    "A22": {
+      "target_product": null,
+      "known": {},
+      "required_human": false,
+      "required_behaviors": [
+        "clarify_product"
+      ],
+      "missing_fields": [],
+      "unknown": [],
+      "equals": {
+        "produto.estado": "NÃO IDENTIFICADO"
+      },
+      "max_response_chars": 600
+    },
+    "A23": {
+      "target_product": "calça",
+      "known": {
+        "tamanho": "42"
+      },
+      "required_human": false,
+      "required_behaviors": [
+        "out_of_stock"
+      ],
+      "missing_fields": [],
+      "unknown": [],
+      "equals": {},
+      "max_response_chars": 600
+    },
+    "A24": {
+      "target_product": "calça",
+      "known": {
+        "tamanho": "44",
+        "uso": "trabalho/lida"
+      },
+      "required_human": false,
+      "required_behaviors": [],
+      "missing_fields": [],
+      "unknown": [],
+      "equals": {
+        "produto.nome": "calça"
+      },
+      "max_response_chars": 600
+    },
+    "A25": {
+      "target_product": "calça",
+      "known": {
+        "tamanho": "44"
+      },
+      "required_human": false,
+      "required_behaviors": [],
+      "missing_fields": [
+        "estoque",
+        "preco"
+      ],
+      "unknown": [],
+      "equals": {},
+      "max_response_chars": 600
+    },
+    "A26": {
+      "target_product": null,
+      "known": {},
+      "required_human": false,
+      "required_behaviors": [
+        "clarify_product"
+      ],
+      "missing_fields": [],
+      "unknown": [],
+      "equals": {
+        "produto.estado": "PROVÁVEL",
+        "estagio": "EXPLORANDO"
+      },
+      "max_response_chars": 600
+    },
+    "R01": {
+      "target_product": null,
+      "known": {},
+      "required_human": false,
+      "required_behaviors": [
+        "clarify_reference"
+      ],
+      "missing_fields": [],
+      "unknown": [],
+      "equals": {
+        "produto.estado": "NÃO IDENTIFICADO"
+      },
+      "confidence_options": [
+        "BAIXA",
+        "MÉDIA"
+      ],
+      "max_response_chars": 600
+    },
+    "R02": {
+      "target_product": null,
+      "known": {},
+      "required_human": false,
+      "required_behaviors": [],
+      "missing_fields": [],
+      "unknown": [
+        "tamanho"
+      ],
+      "equals": {
+        "produto.estado": "NÃO IDENTIFICADO"
+      },
+      "max_response_chars": 600
+    },
+    "R03": {
+      "target_product": null,
+      "known": {},
+      "required_human": true,
+      "required_behaviors": [],
+      "missing_fields": [],
+      "unknown": [],
+      "equals": {
+        "humano": "OBRIGATÓRIO"
+      },
+      "confidence_options": [
+        "BAIXA",
+        "MÉDIA"
+      ],
+      "max_response_chars": 600
+    },
+    "R04": {
+      "target_product": null,
+      "known": {},
+      "required_human": true,
+      "required_behaviors": [],
+      "missing_fields": [],
+      "unknown": [],
+      "equals": {
+        "humano": "OBRIGATÓRIO"
+      },
+      "max_response_chars": 600
+    },
+    "R05": {
+      "target_product": "calça",
+      "known": {},
+      "required_human": true,
+      "required_behaviors": [],
+      "missing_fields": [],
+      "unknown": [],
+      "equals": {
+        "humano": "OBRIGATÓRIO"
+      },
+      "max_response_chars": 600
+    },
+    "E-A": {
+      "target_product": null,
+      "known": {},
+      "required_human": false,
+      "required_behaviors": [
+        "clarify_product"
+      ],
+      "missing_fields": [],
+      "unknown": [],
+      "equals": {
+        "produto.estado": "PROVÁVEL"
+      },
+      "required_verified_fields": [
+        "localizacao"
+      ],
+      "max_response_chars": 600
+    },
+    "E-B": {
+      "target_product": "calça",
+      "known": {},
+      "required_human": false,
+      "required_behaviors": [],
+      "missing_fields": [],
+      "unknown": [],
+      "equals": {},
+      "model": "alfa",
+      "required_verified_fields": [
+        "preco"
+      ],
+      "max_response_chars": 600
+    },
+    "E-C": {
+      "target_product": "chapéu",
+      "known": {},
+      "required_human": false,
+      "required_behaviors": [
+        "hat_measure"
+      ],
+      "missing_fields": [],
+      "unknown": [],
+      "equals": {
+        "produto.nome": "chapéu"
+      },
+      "max_response_chars": 600
+    },
+    "E-D": {
+      "target_product": "camisa",
+      "known": {
+        "tamanho": "G"
+      },
+      "required_human": false,
+      "required_behaviors": [],
+      "missing_fields": [
+        "estoque",
+        "preco"
+      ],
+      "unknown": [],
+      "equals": {},
+      "max_response_chars": 600
+    },
+    "E-E": {
+      "target_product": "calça",
+      "known": {
+        "tamanho": "42"
+      },
+      "required_human": false,
+      "required_behaviors": [
+        "out_of_stock"
+      ],
+      "missing_fields": [],
+      "unknown": [],
+      "equals": {},
+      "max_response_chars": 600
+    },
+    "E-F": {
+      "target_product": "calça",
+      "known": {},
+      "required_human": false,
+      "required_behaviors": [],
+      "missing_fields": [],
+      "unknown": [],
+      "equals": {},
+      "destination": "goiania",
+      "required_verified_fields": [
+        "frete"
+      ],
+      "max_response_chars": 600
+    },
+    "E-G": {
+      "target_product": "calça",
+      "known": {
+        "tamanho": "50/52"
+      },
+      "required_human": false,
+      "required_behaviors": [],
+      "missing_fields": [],
+      "unknown": [],
+      "equals": {},
+      "max_response_chars": 600
+    },
+    "E-H": {
+      "target_product": "calça",
+      "known": {
+        "uso": "trabalho/lida",
+        "tamanho": "44"
+      },
+      "required_human": false,
+      "required_behaviors": [],
+      "missing_fields": [],
+      "unknown": [],
+      "equals": {},
+      "required_verified_fields": [
+        "beneficio"
+      ],
+      "max_response_chars": 600
+    },
+    "E-I": {
+      "target_product": "chapéu",
+      "known": {
+        "tamanho": "58"
+      },
+      "required_human": false,
+      "required_behaviors": [],
+      "missing_fields": [
+        "estoque"
+      ],
+      "unknown": [],
+      "equals": {
+        "produto.nome": "chapéu"
+      },
+      "max_response_chars": 600
+    },
+    "E-J": {
+      "target_product": "calça",
+      "known": {
+        "tamanho": "44"
+      },
+      "required_human": false,
+      "required_behaviors": [],
+      "missing_fields": [],
+      "unknown": [],
+      "equals": {},
+      "unit": "kit",
+      "required_verified_fields": [
+        "preco"
+      ],
+      "max_response_chars": 600
+    },
+    "R06": {
+      "target_product": "calça",
+      "known": {},
+      "required_human": false,
+      "required_behaviors": [],
+      "missing_fields": [],
+      "unknown": [],
+      "equals": {
+        "humano": "NÃO"
+      },
+      "unit": "kit",
+      "required_verified_fields": [
+        "preco"
+      ],
+      "max_response_chars": 600
+    },
+    "R07": {
+      "target_product": "calça",
+      "known": {
+        "tamanho": "44"
+      },
+      "required_human": false,
+      "required_behaviors": [
+        "respect_wait"
+      ],
+      "missing_fields": [],
+      "unknown": [],
+      "equals": {
+        "follow_up_elegivel.valor": false
+      },
+      "max_response_chars": 600
+    }
+  }
+}
